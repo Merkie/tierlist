@@ -1,7 +1,11 @@
 <script lang="ts">
-	import { disableScrollHandling } from '$app/navigation';
 	import type { Tierlist, SortableItem } from '@prisma/client';
-	import { TierlistCategories, TierlistName, TierlistItems } from '../../helpers/stores';
+	import {
+		TierlistCategories,
+		TierlistName,
+		TierlistItems,
+		TierlistUserItems
+	} from '../../helpers/stores';
 	export let data: { tierlists: Tierlist[] };
 
 	const loadTierlist = async (id: string) => {
@@ -14,6 +18,7 @@
 
 		const tierlist: Tierlist & { items: SortableItem[] } = data.tierlist;
 
+		$TierlistUserItems = [];
 		$TierlistName = tierlist.name;
 		$TierlistCategories = tierlist.categories;
 		$TierlistItems = tierlist.items.map((item) => {

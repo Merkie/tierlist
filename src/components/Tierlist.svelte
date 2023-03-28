@@ -2,35 +2,41 @@
 	import { flip } from 'svelte/animate';
 	import { dndzone } from 'svelte-dnd-action';
 	import hslStepGenerator from '../helpers/hslStepGenerator';
-	import { TierlistCategories, TierlistColors, TierlistItems } from '../helpers/stores';
-	import type { TierlistCategory } from '../helpers/types';
+	import {
+		TierlistCategories,
+		TierlistColors,
+		TierlistItems,
+		TierlistUserItems
+	} from '../helpers/stores';
 
-	let tierlistItems: TierlistCategory[] = [
-		...$TierlistCategories.map((category, index) => {
-			return {
-				id: index,
-				name: category,
-				items: []
-			};
-		}),
-		{
-			id: $TierlistCategories.length,
-			name: 'nocategory',
-			items: $TierlistItems.map((item, index) => {
+	// reset the user items if its empty (first load of a new tierlist)
+	if ($TierlistUserItems.length === 0)
+		$TierlistUserItems = [
+			...$TierlistCategories.map((category, index) => {
 				return {
 					id: index,
-					name: item.name,
-					image: item.imageurl
+					name: category,
+					items: []
 				};
-			})
-		}
-	];
+			}),
+			{
+				id: $TierlistCategories.length,
+				name: 'nocategory',
+				items: $TierlistItems.map((item, index) => {
+					return {
+						id: index,
+						name: item.name,
+						image: item.imageurl
+					};
+				})
+			}
+		];
 
 	// Generated swatches for the category rows
 	const swatches = hslStepGenerator(
 		$TierlistColors[0],
 		$TierlistColors[1],
-		tierlistItems.length - 1
+		$TierlistUserItems.length - 1
 	);
 
 	// For adjusting the brightness of the row when considering a drop
@@ -41,7 +47,7 @@
 
 	// Update the items in a row
 	const updateRowItems = (rowid: number, e: CustomEvent) => {
-		tierlistItems = tierlistItems.map((row) => {
+		$TierlistUserItems = $TierlistUserItems.map((row) => {
 			if (row.id === rowid) {
 				return {
 					...row,
@@ -54,7 +60,7 @@
 </script>
 
 <main class="flex-1 gap-1 grid grid-rows-7">
-	{#each tierlistItems as row, index (row.id)}
+	{#each $TierlistUserItems as row, index (row.id)}
 		<div animate:flip={{ duration: flipDurationMs }} class="bg-[#1a1a17] flex relative">
 			{#if row.name !== 'nocategory'}
 				<div
