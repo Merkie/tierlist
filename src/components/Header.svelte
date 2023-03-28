@@ -1,15 +1,23 @@
-<div class="bg-[#1a1a17] p-1 px-2 text-zinc-300 flex items-center text-sm">
-	<div class="flex gap-2">
-		<span class="flex gap-1">[<a class="hover:opacity-75" href="/browse">Browse Tierlists</a>]</span
-		>
-		<span class="flex gap-1"
-			>[<a class="hover:opacity-75" href="/create">Create a Tierlist</a>]</span
-		>
-		<span class="flex gap-1"
-			>[<a class="hover:opacity-75" href="/create">Remix this Tierlist</a>]</span
-		>
-	</div>
+<script lang="ts">
+	export let path: string;
+	const links = [
+		{ href: '/', text: '← Tierlist', title: 'Javascript Frameworks Tierlist' },
+		{ href: '/browse', text: 'Browse Tierlists', title: 'Browse Tierlists' },
+		{ href: '/create', text: 'Create a Tierlist', title: 'Create' },
+		{ href: '/remix', text: 'Remix this Tierlist', title: 'Remix' }
+	];
+</script>
+
+<div class="bg-[#1a1a17] gap-2 p-1 px-2 text-zinc-300 flex items-center text-sm">
+	<p class="text-lg">
+		{links.find((link) => link.href === path)?.title}
+	</p>
 	<div class="flex-1" />
+	{#each links as link}
+		{#if path !== link.href}
+			<span class="flex gap-1">[<a class="hover:opacity-75" href={link.href}>{link.text}</a>]</span>
+		{/if}
+	{/each}
 	<a target="_blank" href="https://github.com/merkie/tierlist" class="hover:opacity-75 flex gap-2">
 		<p>Source</p>
 		<i class="bi bi-github" />
