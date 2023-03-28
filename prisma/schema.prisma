@@ -19,8 +19,10 @@ model SortableItem {
 }
 
 model Tierlist {
-  id         String         @id @default(cuid())
-  name       String
-  categories String[]
-  items      SortableItem[]
+  id          String         @id @default(cuid())
+  name        String
+  imageurl    String
+  description String
+  categories  String[]
+  items       SortableItem[]
 }
