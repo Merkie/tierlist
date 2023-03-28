@@ -32,6 +32,8 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@prisma/client": "^4.12.0",
+		"prisma": "^4.12.0",
 		"svelte-dnd-action": "^0.9.22"
 	}
 }

@@ -1,11 +1,17 @@
 <script lang="ts">
+	import { TierlistName } from '../helpers/stores';
 	export let path: string;
-	const links = [
-		{ href: '/', text: '← Tierlist', title: 'Javascript Frameworks Tierlist' },
-		{ href: '/browse', text: 'Browse Tierlists', title: 'Browse Tierlists' },
-		{ href: '/create', text: 'Create a Tierlist', title: 'Create' },
-		{ href: '/remix', text: 'Remix this Tierlist', title: 'Remix' }
-	];
+
+	let links: { href: string; text: string; title: string }[] = [];
+
+	$: {
+		links = [
+			{ href: '/', text: '← Tierlist', title: $TierlistName },
+			{ href: '/browse', text: 'Browse Tierlists', title: 'Browse Tierlists' },
+			{ href: '/create', text: 'Create a Tierlist', title: 'Create' },
+			{ href: '/remix', text: 'Remix this Tierlist', title: 'Remix' }
+		];
+	}
 </script>
 
 <div class="bg-[#1a1a17] gap-2 p-1 px-2 text-zinc-300 flex items-center text-sm">

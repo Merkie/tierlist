@@ -1,91 +1,45 @@
 <script lang="ts">
 	import { flip } from 'svelte/animate';
 	import { dndzone } from 'svelte-dnd-action';
-
-	type TierlistItem = {
-		id: number;
-		name: string;
-		image: string;
-	};
-
-	type TierlistCategory = {
-		id: number;
-		name: string;
-		color?: string;
-		items: TierlistItem[];
-	};
+	import hslStepGenerator from '../helpers/hslStepGenerator';
+	import { TierlistCategories, TierlistColors, TierlistItems } from '../helpers/stores';
+	import type { TierlistCategory } from '../helpers/types';
 
 	let tierlistItems: TierlistCategory[] = [
+		...$TierlistCategories.map((category, index) => {
+			return {
+				id: index,
+				name: category,
+				items: []
+			};
+		}),
 		{
-			id: 1,
-			name: 'S',
-			color: '#ff7f7f',
-			items: []
-		},
-		{
-			id: 2,
-			name: 'A',
-			color: '#febe7e',
-			items: []
-		},
-		{
-			id: 3,
-			name: 'B',
-			color: '#fedf7e',
-			items: []
-		},
-		{
-			id: 4,
-			name: 'C',
-			color: '#ffff7f',
-			items: []
-		},
-		{
-			id: 5,
-			name: 'D',
-			color: '#beff7f',
-			items: []
-		},
-		{
-			id: 6,
-			name: 'F',
-			color: '#7fff7f',
-			items: []
-		},
-		{
-			id: 7,
+			id: $TierlistCategories.length,
 			name: 'nocategory',
-			items: [
-				{
-					id: 1,
-					name: 'react',
-					image:
-						'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/2300px-React-icon.svg.png'
-				},
-				{
-					id: 2,
-					name: 'svelte',
-					image:
-						'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Svelte_Logo.svg/1200px-Svelte_Logo.svg.png'
-				},
-				{
-					id: 3,
-					name: 'vue',
-					image: '/vuelogo.png'
-				},
-				{
-					id: 4,
-					name: 'knockoutjs',
-					image: 'https://avatars.githubusercontent.com/u/3863375?s=280&v=4'
-				}
-			]
+			items: $TierlistItems.map((item, index) => {
+				return {
+					id: index,
+					name: item.name,
+					image: item.imageurl
+				};
+			})
 		}
 	];
 
+	// Generated swatches for the category rows
+	const swatches = hslStepGenerator(
+		$TierlistColors[0],
+		$TierlistColors[1],
+		tierlistItems.length - 1
+	);
+
+	// For adjusting the brightness of the row when considering a drop
 	let consideringRowId = -1;
 
+	// Controls animation speed
 	const flipDurationMs = 200;
 
+	// Update the items in a row
 	const updateRowItems = (rowid: number, e: CustomEvent) => {
 		tierlistItems = tierlistItems.map((row) => {
 			if (row.id === rowid) {
@@ -97,22 +51,14 @@
 			return row;
 		});
 	};
-	const handleDndConsiderItems = (rowid: number, e: CustomEvent) => {
-		consideringRowId = rowid;
-		updateRowItems(rowid, e);
-	};
-	const handleDndFinalizeitems = (rowid: number, e: CustomEvent) => {
-		consideringRowId = -1;
-		updateRowItems(rowid, e);
-	};
 </script>
 
 <main class="flex-1 gap-1 grid grid-rows-7">
-	{#each tierlistItems as row (row.id)}
+	{#each tierlistItems as row, index (row.id)}
 		<div animate:flip={{ duration: flipDurationMs }} class="bg-[#1a1a17] flex relative">
 			{#if row.name !== 'nocategory'}
 				<div
-					style={`background-color: ${row.color}`}
+					style={`background-color: ${swatches[index]}`}
 					class="w-[12%] text-[#1a1a17] grid place-items-center"
 				>
 					<p style="font-size: 2vw">{row.name}</p>
@@ -124,8 +70,14 @@
 					flipDurationMs,
 					dropTargetStyle: {}
 				}}
-				on:consider={(e) => handleDndConsiderItems(row.id, e)}
-				on:finalize={(e) => handleDndFinalizeitems(row.id, e)}
+				on:consider={(e) => {
+					consideringRowId = row.id;
+					updateRowItems(row.id, e);
+				}}
+				on:finalize={(e) => {
+					consideringRowId = -1;
+					updateRowItems(row.id, e);
+				}}
 				class="flex-1 p-2 flex flex-wrap bg-inherit texture"
 				style={consideringRowId === row.id ? 'filter: brightness(1.2)' : ''}
 			>
