@@ -1,6 +1,9 @@
 <script>
+	import Header from '../components/Header.svelte';
 	import '../app.css';
 </script>
 
-<!-- This is where page content goes vvv -->
-<slot />
+<main class="flex gap-1 flex-col min-h-screen">
+	<Header />
+	<slot />
+</main>
