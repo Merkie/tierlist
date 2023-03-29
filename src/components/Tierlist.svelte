@@ -88,14 +88,14 @@
 				style={consideringRowId === row.id ? 'filter: brightness(1.2)' : ''}
 			>
 				{#each row.items as item (item.id)}
-					<div animate:flip={{ duration: flipDurationMs }} class="w-[100px] h-[70px] relative">
+					<div animate:flip={{ duration: flipDurationMs }} class="min-w-[100px] h-[70px] relative">
 						<img
 							src={item.image}
 							alt={item.name}
 							class="absolute h-[100%] object-fill left-1/2 -translate-x-1/2"
 						/>
 						<p
-							class="absolute left-1/2 -translate-x-1/2 bottom-2 bg-[rgba(0,0,0,0.75)] px-2 capitalize"
+							class="absolute opacity-80 left-1/2 -translate-x-1/2 bottom-2 bg-[rgba(0,0,0,0.75)] px-2 capitalize text-center w-max overflow-ellipsis"
 						>
 							{item.name}
 						</p>
