@@ -8,7 +8,7 @@
 		links = [
 			{ href: '/', text: '← Tierlist', title: $TierlistName },
 			{ href: '/browse', text: 'Browse Tierlists', title: 'Browse Tierlists' },
-			{ href: '/create', text: 'Create a Tierlist', title: 'Create' },
+			{ href: '/create', text: 'Create a Tierlist', title: 'Create a Tierlist' },
 			{ href: '/remix', text: 'Remix this Tierlist', title: 'Remix' }
 		];
 	}

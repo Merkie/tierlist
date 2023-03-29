@@ -3,9 +3,9 @@ import { writable } from 'svelte/store';
 import type { TierlistCategory } from './types';
 
 export const TierlistCategories = writable(['S', 'A', 'B', 'C', 'D', 'F']);
-export const TierlistItems = writable([{ name: 'vue', imageurl: '/vuelogo.png' }]);
+export const TierlistItems = writable([{}]);
 export const TierlistColors = writable(['hsl(0, 100%, 75%)', 'hsl(120, 100%, 75%)']);
-export const TierlistName = writable('Javascript Frameworks Tierlist');
+export const TierlistName = writable('');
 export const TierlistUserItems = writable<TierlistCategory[]>([]);
 
 if (browser) {
