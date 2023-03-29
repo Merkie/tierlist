@@ -23,6 +23,9 @@ model Tierlist {
   name        String
   imageurl    String
   description String
+  slug        String
+  startColor  String
+  endColor    String
   categories  String[]
   items       SortableItem[]
 }

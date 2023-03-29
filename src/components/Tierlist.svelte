@@ -33,6 +33,7 @@
 		];
 
 	// Generated swatches for the category rows
+	console.log($TierlistColors);
 	const swatches = hslStepGenerator(
 		$TierlistColors[0],
 		$TierlistColors[1],

@@ -7,6 +7,7 @@ export const TierlistItems = writable<{ name: string; imageurl: string }[]>([]);
 export const TierlistColors = writable(['hsl(0, 100%, 75%)', 'hsl(120, 100%, 75%)']);
 export const TierlistName = writable('');
 export const TierlistUserItems = writable<TierlistCategory[]>([]);
+export const TierlistSlug = writable('');
 
 if (browser) {
 	// TierlistCategories
@@ -48,5 +49,13 @@ if (browser) {
 	}
 	TierlistUserItems.subscribe((value) => {
 		localStorage.setItem('tierlistUserItems', JSON.stringify(value));
+	});
+	// TierlistSlug
+	const storedTierlistSlug = localStorage.getItem('tierlistSlug');
+	if (storedTierlistSlug) {
+		TierlistSlug.set(JSON.parse(storedTierlistSlug));
+	}
+	TierlistSlug.subscribe((value) => {
+		localStorage.setItem('tierlistSlug', JSON.stringify(value));
 	});
 }

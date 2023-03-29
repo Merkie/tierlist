@@ -2,6 +2,8 @@
 	import { createId } from '@paralleldrive/cuid2';
 	import { onMount } from 'svelte';
 	import ImageResize from 'image-resize';
+	import hslStepGenerator from '../../helpers/hslStepGenerator';
+	import hexStringToHSLString from '../../helpers/hexToHsl';
 
 	const imageResize = new ImageResize({
 		format: 'png',
@@ -31,13 +33,17 @@
 		}
 	}
 
-	const imageToBase64 = async (file: File, opts: { width: number }): Promise<string> => {
+	const imageToBase64 = async (file: File, opts: { size: number }): Promise<string> => {
 		const ext = file.name.split('.').pop() + '';
 		if (!['png', 'jpg', 'jpeg'].includes(ext)) {
 			alert('Please upload a valid image file.');
 			return Promise.reject();
 		}
-		return (await imageResize.updateOptions({ format: ext, width: opts.width }).play(file)) + '';
+		return (
+			(await imageResize
+				.updateOptions({ format: ext, width: opts.size, height: opts.size })
+				.play(file)) + ''
+		);
 	};
 
 	const uploadImage = async (imageb64data: string, imageext: string) => {
@@ -63,7 +69,7 @@
 	const handleTierlistImageUpload = async () => {
 		if (!tierlistImageInput.files?.length) return;
 		const file = tierlistImageInput.files[0];
-		const imageb64data = await imageToBase64(file, { width: 700 });
+		const imageb64data = await imageToBase64(file, { size: 700 });
 		const imageext = file.name.split('.').pop() + '';
 		const fileurl = await uploadImage(imageb64data, imageext);
 		tierlistImageUrl = fileurl;
@@ -74,7 +80,7 @@
 		if (!sortableItems[index].input?.files?.length) return;
 		//@ts-ignore
 		const file = sortableItems[index].input.files[0];
-		const imageb64data = await imageToBase64(file, { width: 250 });
+		const imageb64data = await imageToBase64(file, { size: 250 });
 		const imageext = file.name.split('.').pop() + '';
 		const fileurl = await uploadImage(imageb64data, imageext);
 		sortableItems[index].image = fileurl;
@@ -97,6 +103,7 @@
 				description: tierlistDescription,
 				image: tierlistImageUrl,
 				categories: tierlistCategories,
+				colors: [hexStringToHSLString(startColor), hexStringToHSLString(endColor)],
 				items: sortableItems.map((item) => {
 					return {
 						name: item.name,
@@ -110,8 +117,22 @@
 
 		window.location.href = `/browse`;
 	};
+
+	let shades: string[] = [];
+
+	$: shades = hslStepGenerator(
+		startColor ? hexStringToHSLString(startColor) : 'hsl(0, 100%, 75%)',
+		endColor ? hexStringToHSLString(endColor) : 'hsl(120, 100%, 75%)',
+		tierlistCategories.length
+	);
+
+	let startColor = '#ff8080';
+	let endColor = '#80ff80';
 </script>
 
+<head>
+	<title>Create a Tierlist</title>
+</head>
 <div class="flex-1">
 	<div
 		class="my-16 text-zinc-300 w-[90%] max-w-[600px] mx-auto bg-[#1a1a17] h-fit p-8 flex flex-col gap-2 border border-zinc-800 rounded-md"
@@ -144,8 +165,28 @@
 		{/if}
 
 		<p class="mt-4">Categories:</p>
+		<div class="flex items-center gap-2">
+			<p>Start Color:</p>
+			<input type="color" bind:value={startColor} />
+			<p>End color:</p>
+			<input type="color" bind:value={endColor} />
+			<div class="flex-1" />
+			<button
+				on:click={() => {
+					startColor = '#ff8080';
+					endColor = '#80ff80';
+				}}
+				class="bg-gradient-to-b from-zinc-500 to-zinc-600 p-2 rounded-md border-2 border-zinc-700 border-x-0 border-t-0 text-sm active:border-0 active:border-t-2"
+				>Reset Colors</button
+			>
+		</div>
+
 		{#each tierlistCategories as category, index}
 			<div class="flex items-center gap-4">
+				<div
+					style={shades.length > index ? `background-color: ${shades[index]}` : ''}
+					class=" w-[30px] h-[30px] rounded-md"
+				/>
 				<input
 					bind:value={tierlistCategories[index]}
 					placeholder="Category name"
