@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { createId } from '@paralleldrive/cuid2';
 	import { onMount } from 'svelte';
+	import ImageResize from 'image-resize';
+
+	const imageResize = new ImageResize({
+		format: 'png',
+		width: 250
+	});
 
 	let tierlistId = '';
 	let tierlistTitle = '';
@@ -25,13 +31,13 @@
 		}
 	}
 
-	const imageToBase64 = (file: File): Promise<string> => {
-		return new Promise((resolve, reject) => {
-			const reader = new FileReader();
-			reader.readAsDataURL(file);
-			reader.onload = () => resolve(reader.result as string);
-			reader.onerror = (error) => reject(error);
-		});
+	const imageToBase64 = async (file: File, opts: { width: number }): Promise<string> => {
+		const ext = file.name.split('.').pop() + '';
+		if (!['png', 'jpg', 'jpeg'].includes(ext)) {
+			alert('Please upload a valid image file.');
+			return Promise.reject();
+		}
+		return (await imageResize.updateOptions({ format: ext, width: opts.width }).play(file)) + '';
 	};
 
 	const uploadImage = async (imageb64data: string, imageext: string) => {
@@ -57,7 +63,7 @@
 	const handleTierlistImageUpload = async () => {
 		if (!tierlistImageInput.files?.length) return;
 		const file = tierlistImageInput.files[0];
-		const imageb64data = await imageToBase64(file);
+		const imageb64data = await imageToBase64(file, { width: 700 });
 		const imageext = file.name.split('.').pop() + '';
 		const fileurl = await uploadImage(imageb64data, imageext);
 		tierlistImageUrl = fileurl;
@@ -68,7 +74,7 @@
 		if (!sortableItems[index].input?.files?.length) return;
 		//@ts-ignore
 		const file = sortableItems[index].input.files[0];
-		const imageb64data = await imageToBase64(file);
+		const imageb64data = await imageToBase64(file, { width: 250 });
 		const imageext = file.name.split('.').pop() + '';
 		const fileurl = await uploadImage(imageb64data, imageext);
 		sortableItems[index].image = fileurl;
@@ -108,7 +114,7 @@
 
 <div class="flex-1">
 	<div
-		class="mt-16 text-zinc-300 w-[90%] max-w-[600px] mx-auto bg-[#1a1a17] h-fit p-8 flex flex-col gap-2 border border-zinc-800 rounded-md"
+		class="my-16 text-zinc-300 w-[90%] max-w-[600px] mx-auto bg-[#1a1a17] h-fit p-8 flex flex-col gap-2 border border-zinc-800 rounded-md"
 	>
 		<p>Tierlist Title:</p>
 		<input bind:value={tierlistTitle} type="text" placeholder="Superheros" />

@@ -1,26 +1,28 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import cloudinary from 'cloudinary';
-import dotenv from 'dotenv';
-dotenv.config();
-
-cloudinary.v2.config({
-	cloud_name: process.env.CLOUDINARY_CLOUDNAME,
-	api_key: process.env.CLOUDINARY_APIKEY,
-	api_secret: process.env.CLOUDINARY_APISECRET
-});
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import s3client from '../../../../resources/s3';
 
 export const POST: RequestHandler = async ({ request }) => {
-	const { imageb64data, imageext, tierlistid } = await request.json();
+	const { imageb64data, imageext, tierlistid } = (await request.json()) as {
+		imageb64data: string;
+		imageext: string;
+		tierlistid: string;
+	};
 
-	const upload = await cloudinary.v2.uploader.upload(imageb64data, {
-		folder: `tierlist/${tierlistid}`,
-		public_id: `tierlist-${tierlistid}`,
-		overwrite: true,
-		allowed_formats: [imageext],
-		unique_filename: false
+	if (!imageb64data || !imageext || !tierlistid)
+		return new Response(JSON.stringify({ error: 'Missing parameters' }), { status: 400 });
+
+	const imagename = `image-${Date.now()}.${imageext}`;
+
+	const command = new PutObjectCommand({
+		Bucket: 'tierlist-sveltekit',
+		Key: `${tierlistid}/${imagename}`,
+		Body: Buffer.from(imageb64data.split(',')[1], 'base64')
 	});
 
-	const fileurl = upload.secure_url;
+	const response = await s3client.send(command);
+
+	const fileurl = `https://tierlist-sveltekit.s3.us-west-2.amazonaws.com/${tierlistid}/${imagename}`;
 
 	if (!fileurl)
 		return new Response(JSON.stringify({ error: 'Error uploading image' }), { status: 500 });

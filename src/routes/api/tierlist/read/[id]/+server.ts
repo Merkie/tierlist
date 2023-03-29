@@ -3,7 +3,7 @@ import prisma from '../../../../../resources/prisma';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const { id } = params;
-	console.log(id);
+
 	const tierlist = await prisma.tierlist.findUnique({
 		where: {
 			id
